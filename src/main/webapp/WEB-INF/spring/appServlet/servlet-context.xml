@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.2.xsd">
+	
+	<context:annotation-config />
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	
+	<!-- Spring Security -->
+	<security:global-method-security secured-annotations="enabled"/>
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<context:component-scan base-package="com.lucas.websocket" />
+	
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="1" />
+	</beans:bean>
+	
+	<!-- File Download -->
+	<beans:bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<beans:property name="order" value="0"/>
+	</beans:bean>
+    
+    <!-- MultipartFile -->
+	<beans:bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+		<beans:property name="defaultEncoding" value="UTF-8" /> <!-- 인코딩-->
+	</beans:bean>
+	
+	<!-- MongoDB -->
+    <mongo:db-factory 
+    	id="mongoDbFactory" 
+    	host="localhost"
+    	port="27017"
+    	dbname="memberdb"/> 
+    
+    <beans:bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+    	<beans:constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>   
+    </beans:bean>
+    
+    <!-- Websocket -->
+    <websocket:handlers>
+    	<websocket:mapping handler="echoHandler" path="/echo"/>
+    	<websocket:sockjs/>
+	</websocket:handlers>
+
+	<!-- utill -->
+	<beans:bean id="svnUtil" class="com.lucas.websocket.util.SVNUtil" />
+	<beans:bean id="downloadView" class="com.lucas.websocket.util.FileDownloadUtil" />
+	<beans:bean id="echoHandler" class="com.lucas.websocket.util.EchoHandler" />
+	<beans:bean id="statusHandler" class="com.lucas.websocket.util.StatusHandler" />
+	<beans:bean id="blameHandler" class="com.lucas.websocket.util.AnnotationHandler" />
+	<beans:bean id="pdfview" class="com.lucas.websocket.util.PdfView" />
+</beans:beans>
